@@ -69,6 +69,6 @@ Second run:
 
 
 ### Conclusion
-This experiment was quite surprising because while the performance form the libraries was consistent in different runs on the same test file, they performed very differently on the two test cases. More specifically, Lift was kind of bad at parsing the `birds`, but it kicked ass at the secret data file. At the same time Rapture showed the opposite performance.   
+This experiment was quite surprising because while the performance from the libraries was consistent in different runs on the same test file, they performed very differently on the two test cases. More specifically, Lift was kind of bad at parsing the `birds.dat`, but it kicked ass at the secret data file. At the same time Rapture showed the opposite performance.   
 
-AS for the other libraries, Spray, Play and Json4s all exhibited a roughly similar performance.  
+As for the other libraries, Spray, Play and Json4s all exhibited a roughly similar performance.  
