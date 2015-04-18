@@ -3,26 +3,24 @@
 ### Introduction
 JSON data reading and writing is an "exciting" subject in Scala, because there are many competing libraries, and it seems all of them refuse to die. This project seeks to make another benchmark from these projects, more specifically from [Rapture](https://github.com/propensive/rapture-json), [Lift](https://github.com/lift/lift/tree/master/framework/lift-base/lift-json/), [Spray](https://github.com/spray/spray-json), [Play](https://github.com/playframework/playframework/tree/master/framework/src/play-json/src) and [Json4s](https://github.com/json4s/json4s).
 
-This projects also serves to demonstrate how to use these different Scala JSON libraries to deserialize a `case class`. Of cource, there is also our code to run the benchmark and to generate test data, that might be useful to someone.
+This project also demonstrates how to use these different JSON libraries to deserialize a Scala `case class`. Of course, we also provide the code to run the benchmark and to generate test data, that might be of use.ja
 
 ### About the libraries
 
-Some of these libraries (Rapture and Json4s) use Jackson, the Java JSON-parsing library. Some of them are closer to native Scala (Lift). All of them offer similar ASTs to handle the parsed data, usually with some way to query the objects, and also some way to generate objects from a `case class` definition.
+Some of these libraries (Rapture and Json4s) use [Jackson](https://github.com/FasterXML/jackson), the Java JSON-parsing library. Lift has a custom native parser. Spray was based on Parboiled, but moved in late 2014 to a custom native parser too, acquiring a huge performance improvement. All of them offer similar JSON ASTs to handle the parsed data, usually with some way to query the objects, and also some way to generate and extract JSON objects from a `case class` definition.
 
-It seems from the documentation that Play took their time to offer a nice automatic way to extract case classes instead of forcing you to write code to pick the value from each field. But now all these libraries work in similar ways, although there is still some room for choosing one of them to your project based on taste or need. They have different suble restrictions on what kind of `implicit` you have to define in your classes for the extraction to work. And there are other practical concerns, of course. If you are using Play, Lift or Spray you probably would like to stick to their native JSON handling libraries, and some libraries are not available in any just platform.
+It seems from the documentation that Play took their time to offer a nice automatic way to extract case classes instead of forcing you to write code to pick the values from each field. But now all these libraries work in similar ways, although there is still some room for choosing one of them to your project based on taste or need. They have different subtle restrictions on what kind of `implicit` you have to define in your classes for the extraction to work. And there are other practical concerns, of course. If you are using Play, Lift or Spray you probably would like to stick to their native JSON handling libraries, and some libraries are not available in just any platform.
      
      
 ### Experiment     
-In our study here we were only concerned with a "big data" scenario. We have a large file with thousands of JSON objects, one per text line, and we just wanted to see which library could read them faster.
+In our study here we were only concerned with a "big data" scenario.  We have a large file with thousands of JSON objects, one per text line, and we just wanted to see which library could read them into case classes faster.
    
-The `ScalaJsonBenchmark.scala` file contains classes with a JSON parser created using each library tested. That file also carries out the experiment, reading the file to memory first as an `Array[String]`. This array was then processed 11 times with each parser. The parsers were executed in sequence at each of these iterations, and not just one parser at a time.
+The `ScalaJsonBenchmark.scala` file contains classes with JSON parsers created using each of the tested libraries. That file also carries out the experiment, reading the input file to memory first as an `Array[String]`. This array is then processed 11 times with each parser. The parsers are executed in sequence at each of these iterations, and not just one parser at a time.
     
-The time taken in the exeution was measured using `System.currentTimeMillis()`, which is not the perfect method, but was good enough to provide some interesting results.
- 
-This experiment was performed in April 2014 with an old lousy notebook computer (4GB RAM + _Intel(R) Core(TM) i5-2450M CPU @ 2.50GHz_ )
+The time taken in the exeution was measured using `System.currentTimeMillis()`, which is not the perfect method, but was good enough to provide some interesting results. This experiment was performed in April 2014 with an old lousy notebook computer (4GB RAM + _Intel(R) Core(TM) i5-2450M CPU @ 2.50GHz_ ) and with Scala 2.11.6, using a jar file created with [sbt-assembly](https://github.com/sbt/sbt-assembly).
 
 ##### Results from set 1
-These are the test results from the `birds.dat` file, a file with roughly 10 megabytes. (We used to call that a "box of diskettes" back in the day...) This file is provided in this project for you to reproduce the experiment. We also provided the program used to generate this data from the model classes (`Bird` and `Place`) with a bunch of random data generation functions. The tables below show the minimum, median and maximum times in milliseconds taken by each library to parse all the data. 
+These are the test results from `birds.dat`, a file with roughly 10 megabytes. (We used to call that a "box of diskettes" back in the day...) This file is provided in this project for you to reproduce the experiment. We also provided the program used to generate this data from the model classes (`Bird` and `Place`) with a bunch of random data generating functions. The tables below show the minimum, median and maximum times in milliseconds taken by each library to parse all the data in the 11 iterations.
 
 First run:
 <table><tr>
@@ -69,6 +67,10 @@ Second run:
 
 
 ### Conclusion
-This experiment was quite surprising because while the performance from the libraries was consistent in different runs on the same test file, they performed very differently on the two test cases. More specifically, Lift was kind of bad at parsing the `birds.dat`, but it kicked ass at the secret data file. At the same time Rapture showed the opposite performance.   
+This experiment was quite surprising because while the performance from the libraries was consistent in different runs on the same test file, they performed quite differently on the two test cases. More specifically, Lift was kind of bad at parsing the `birds.dat`, but it kicked ass at the secret data file. At the same time Rapture showed the opposite performance. We haven't figured out yet what difference in the models might have caused this effect.
 
-As for the other libraries, Spray, Play and Json4s all exhibited a roughly similar performance.  
+As for the other libraries, Spray, Play and Json4s all exhibited a roughly similar performance.
+
+The study had demonstrated the greate level of maturity being reached by all these projects. It's pretty hard today to defend any of these libraries based on speed only. And also there is no obvious answer to which might be the fastest, performance might differ, but it might be dependent on the specific application.
+
+Jury is still out on which library provides the best interface. But after this experiment I intend to stop caring about any librabry having a much worse performance, which was indeed a problem back in the day &mdash; the Scala native parser still seems to be horrid. We should just concern ourselves with the code now, as the necessary performance improvements have apparently been applied to these projects already.
