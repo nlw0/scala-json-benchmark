@@ -71,6 +71,6 @@ This experiment was quite surprising because while the performance from the libr
 
 As for the other libraries, Spray, Play and Json4s all exhibited a roughly similar performance.
 
-The study had demonstrated the greate level of maturity being reached by all these projects. It's pretty hard today to defend any of these libraries based on speed only. And also there is no obvious answer to which might be the fastest, performance might differ, but it might be dependent on the specific application.
+This study has demonstrated the great level of maturity being reached by all of these projects. It is pretty hard today to defend any of the based solely on speed. And also there is no obvious answer to which might be the fastest in any case. Performance may differ, but it may depend on the specific application.
 
 Jury is still out on which library provides the best interface. But after this experiment I intend to stop caring about any library having a much worse performance, which was indeed a problem back in the day &mdash; the Scala native parser still seems to be horrid. We should just concern ourselves with the code now, as the necessary performance improvements have apparently been applied to these projects already.
