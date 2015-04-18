@@ -102,8 +102,3 @@ class SprayParser extends MyParser {
     s.parseJson.convertTo[Bird]
   }
 }
-
-
-git filter-branch --force --index-filter 'git rm --cached --ignore-unmatch mydata.dat' --prune-empty --tag-name-filter cat -- --all
-
-
