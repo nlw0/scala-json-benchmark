@@ -7,6 +7,7 @@ import scala.util.Random
 
 /**
  * Created by nlw on 18/04/15.
+ * A pair of `case class`es for testing JSON (de-)serialization. Also random data generation procedures.
  *
  */
 case class Bird(scientific_name: String, common_names: List[String], sights: Int, wing_span: Double, hangs_out: List[Place])
@@ -19,11 +20,11 @@ object BirdGen {
     val comm = rand_list(rand_name)
     val si = rand_int
     val sp = rand_double
-    val hang = rand_list(gen_place)
+    val hang = rand_list(rand_place)
     Bird(nom, comm, si, sp, hang)
   }
 
-  def gen_place() = {
+  def rand_place = {
     val name = rand_name
     val id = (rand_int /: (1 to 10)) { (a, b) => a * rand_int }
     val lalo = List(rand_double, rand_double)

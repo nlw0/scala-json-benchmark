@@ -1,22 +1,9 @@
-import java.lang.System.currentTimeMillis
-
 import org.json4s._
-import org.json4s.jackson.JsonMethods._
-
-import rapture.json._
 import rapture.json.jsonBackends.jackson._
-
-import scala.io._
-
+import spray.json.DefaultJsonProtocol._
 import spray.json._
 
-import DefaultJsonProtocol._
-
-import net.liftweb.json._
-
-import play.api.libs.json._
-
-import scala.reflect.ClassTag
+import scala.io._
 
 /**
  * Created by nlw on 18/04/15.
@@ -48,7 +35,7 @@ object ScalaJsonBenchmark extends App {
   )
 
   val results = for {
-    iteration <- (0 to 1).iterator
+    iteration <- (0 to 10).iterator
     (name, func) <- theFuncs.iterator
   } yield {
       val time = Test(name)(func.apply)
