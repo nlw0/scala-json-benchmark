@@ -1,4 +1,4 @@
-JSON parsing in Scala with multiple libraries
+# A Scala JSON parsing benchmark experiment
 
 ### Introduction
 JSON data reading and writing is an "exciting" subject in Scala, because there are many competing libraries, and it seems all of them refuse to die. This project seeks to make another benchmark from these projects, more specifically from [Rapture](https://github.com/propensive/rapture-json), [Lift](https://github.com/lift/lift/tree/master/framework/lift-base/lift-json/), [Spray](https://github.com/spray/spray-json), [Play](https://github.com/playframework/playframework/tree/master/framework/src/play-json/src) and [Json4s](https://github.com/json4s/json4s).
