@@ -16,92 +16,94 @@ import net.liftweb.json._
 
 import play.api.libs.json._
 
+import scala.reflect.ClassTag
+
 /**
  * Created by nlw on 18/04/15.
  *
  */
 object ScalaJsonBenchmark extends App {
 
-  val file = Source.fromFile("src/main/resources/mydata.dat").getLines().toArray
+  val data: Array[String] = Source.fromFile("src/main/resources/birds.dat").getLines().toArray
 
-  var yy = 0
-  for (x <- 1 to 10000) {
+  // Do some stupid work to "warm up" the JVM, no idea if this makes any difference at all
+  var yy = 0L
+  for (x <- 1L to 100000L) {
     yy += x * x
   }
-  println(yy)
 
-  def sumyears(dd: Array[EnemRow]) = (dd map { ex => ex.year }).sum
-
-  def sumirt(dd: Array[EnemRow]) = (
-    for {row <- dd
-         ex <- row.exams
-         ii <- ex.irt} yield ii).sum
-
-  for (iteration <- 1 to 10) {
-    var xx = System.currentTimeMillis()
-    val dataJson4s = file map Json4sParser.apply
-    println(s"Json4s $iteration " + (System.currentTimeMillis() - xx))
-
-    xx = System.currentTimeMillis()
-    val dataRapture = file map RaptureParser.apply
-    println(s"Rapture $iteration " + (System.currentTimeMillis() - xx))
-
-    xx = System.currentTimeMillis()
-    val dataLift = file map LiftParser.apply
-    println(s"Lift $iteration " + (System.currentTimeMillis() - xx))
-
-    xx = System.currentTimeMillis()
-    val dataPlay = file map PlayParser.apply
-    println(s"Play $iteration " + (System.currentTimeMillis() - xx))
-
-    xx = System.currentTimeMillis()
-    val dataSpray = file map SprayParser.apply
-    println(s"Spray $iteration " + (System.currentTimeMillis() - xx))
-
-    println(s"Json4s  $iteration ${sumyears(dataJson4s)} ${sumirt(dataJson4s)}")
-    println(s"Rapture $iteration ${sumyears(dataRapture)} ${sumirt(dataRapture)}")
-    println(s"Lift    $iteration ${sumyears(dataLift)} ${sumirt(dataLift)}")
-    println(s"Play    $iteration ${sumyears(dataPlay)} ${sumirt(dataPlay)}")
-    println(s"Spray   $iteration ${sumyears(dataSpray)} ${sumirt(dataSpray)}")
+  def Test[A](name: String)(f: String => A): Long = {
+    val start_time = System.currentTimeMillis()
+    val parsed_data = data map f
+    val end_time = System.currentTimeMillis()
+    end_time - start_time
   }
+
+  def theFuncs: Map[String,MyParser] = Map(
+    "json4s" -> new Json4sParser,
+    "spray" -> new SprayParser,
+    "rapture" -> new RaptureParser,
+    "lift" -> new LiftParser,
+    "play" -> new PlayParser
+  )
+
+  val results = for {
+    iteration <- (0 to 1).iterator
+    (name, func) <- theFuncs.iterator
+  } yield {
+      val time = Test(name)(func.apply)
+      f"$name%7s $time%05d $iteration%02d"
+    }
+
+  results foreach println
 }
 
-object Json4sParser {
+
+trait MyParser {
+  def apply(s: String): Bird
+}
+
+class Json4sParser extends MyParser {
   implicit val formats = org.json4s.DefaultFormats
 
   def apply(s: String) = {
-    org.json4s.jackson.JsonMethods.parse(s).extract[EnemRow]
+    org.json4s.jackson.JsonMethods.parse(s).extract[Bird]
   }
 }
 
-object RaptureParser {
+class RaptureParser extends MyParser {
   def apply(s: String) = {
-    rapture.json.Json.parse(s).as[EnemRow]
+    rapture.json.Json.parse(s).as[Bird]
   }
 }
 
-object LiftParser {
+class LiftParser extends MyParser {
   implicit val formats = net.liftweb.json.DefaultFormats
 
   def apply(s: String) = {
-    net.liftweb.json.parse(s).extract[EnemRow]
+    net.liftweb.json.parse(s).extract[Bird]
   }
 }
 
-object PlayParser {
-  implicit val examReads = play.api.libs.json.Json.reads[EnemExam]
-  implicit val rowReads = play.api.libs.json.Json.reads[EnemRow]
+class PlayParser extends MyParser {
+  implicit val subReads = play.api.libs.json.Json.reads[Place]
+  implicit val rowReads = play.api.libs.json.Json.reads[Bird]
 
   def apply(s: String) = {
-    play.api.libs.json.Json.parse(s).as[EnemRow]
+    play.api.libs.json.Json.parse(s).as[Bird]
   }
 }
 
-object SprayParser {
-  implicit val rowFormat = jsonFormat6(EnemExam)
-  implicit val examFormat = jsonFormat9(EnemRow)
+class SprayParser extends MyParser {
+  implicit val examFormat = jsonFormat5(Place)
+  implicit val rowFormat = jsonFormat5(Bird)
 
   def apply(s: String) = {
-    s.parseJson.convertTo[EnemRow]
+    s.parseJson.convertTo[Bird]
   }
 }
+
+
+git filter-branch --force --index-filter 'git rm --cached --ignore-unmatch mydata.dat' --prune-empty --tag-name-filter cat -- --all
+
+
